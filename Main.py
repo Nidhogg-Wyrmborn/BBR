@@ -24,33 +24,37 @@ def main2(msg, key, Encrypt=True):
 if __name__ == '__main__':
 	my_parser = argparse.ArgumentParser(description="Encrypt or decrypt some text according to a key")
 
-	key = ''
-	msg = ''
-
 	# add the arguments
-	my_parser.add_argument("msg",
+	requiredName = my_parser.add_argument_group("Required Named Arguements")
+	requiredName.add_argument("-m", "--message",
 							metavar='Message',
 							type=str,
 							action='store',
+							dest='msg',
+							required=True,
 							help='the message to encrypt (if there is spaces use quotes)')
-	my_parser.add_argument("key",
+	my_parser.add_argument("-k", "--key",
 							metavar="Key",
 							type=str,
+							nargs="?",
 							action='store',
+							dest='key',
 							help='the key to encrypt the message (if there is spaces use quotes)')
+	my_parser.add_argument("-d", "--decrypt",
+							#metavar="Encrypt",
+							#type=str,
+							#nargs="?",
+							action='store_false',
+							dest='isencs',
+							help='Decrypt otherwise encrypt (if not called)')
 	args = my_parser.parse_args()
 
-	key = args.key
 	msg = args.msg
+	key = args.key
+	isencs = args.isencs
 
-	isencs = str(input("Is it [e]ncrypt or [d]ecrypt?\n\n- "))
-
-	if isencs.lower() == 'e':
-		isenc = True
-	if isencs.lower() == 'd':
-		isenc = False
-	if isencs.lower() != 'e' and isencs.lower() != 'd':
+	if msg == None:
 		quit()
 
 
-	print(main2(msg, key, isenc))
+	print(main2(msg, key, isencs))
