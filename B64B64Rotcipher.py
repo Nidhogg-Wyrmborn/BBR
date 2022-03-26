@@ -5,12 +5,8 @@ import hashlib
 
 def Cstm(Input, Key):
     # change the Input and Key to string rather than bytes
-    Input = str(Input)
-    Key = str(Key)
-    Input = Input.replace("b'", '')
-    Input = Input.replace("'", '')
-    Key = Key.replace("b'", '')
-    Key = Key.replace("'", '')
+    Input = Input.decode()
+    Key = Key.decode()
     
     # Using multiplication, Multiply the ord of the input with the ord of the key
     InList = list(Input)
