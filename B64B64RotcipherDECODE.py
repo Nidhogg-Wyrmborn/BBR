@@ -7,23 +7,15 @@ import hashlib
 def decode(msg, key):
     # take input and key decode using my custom cipher then decode twice using b64
     msg = b64decode(bytes(msg, "UTF-8")).decode()
-    #print(msg) # DEBUG
     msg = msg.split("39bgen")
-    #print(msg) # DEBUG
     for i in range(len(msg)):
         msg[i] = b85decode(bytes(msg[i], "UTF-8")).decode()
 
-    #print(msg) # DEBUG
     key = b64encode(bytes(str(hashlib.sha256(key.encode()).hexdigest()), "UTF-8")).decode()
-
-    #print(msg)
 
     InList = list(msg)
     KyList = list(key)
 
-    #print(InList)
-    #print(KyList)
-    
     counter = -1
     
     try:
@@ -45,13 +37,3 @@ def decode(msg, key):
         tmp = tmp + i
     output = b64decode(b64decode(bytes(tmp, "UTF-8"))).decode()
     return output
-
-    
-
-#msg = easygui.enterbox("Message")
-#key = easygui.enterbox("Key")
-
-#msg = "STUwNlYzOWJnZW5HYyt8WTM5Ymdlbkk1e3ZkMzliZ2VuRyZNM2IzOWJnZW5II2F2bzM5YmdlbkgjYWptMzliZ2VuSFp3VWszOWJnZW5IIXdDYjM5YmdlbkhadzlYMzliZ2VuSDkwbWszOWJnZW5HY3pfWTM5YmdlbkhaP2Ru" # test case
-#key = "testing" # test case
-#decode(msg, key)
-#easygui.msgbox(decode(msg, key))

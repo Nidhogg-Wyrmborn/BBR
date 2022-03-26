@@ -12,38 +12,18 @@ def Cstm(Input, Key):
     InList = list(Input)
     KyList = list(Key)
 
-    #print(InList) # DEBUG
-    #print(KyList) # DEBUG
-    
-    #print(len(KyList)) # DEBUG
-    # cycle through the input and key and separte them into separate lists
-    #for i in Input:
-    #    InList.append(i)
-
-    #for i in Key:
-    #    KyList.append(i)
     counter = -1
-    #print(InList) # DEBUG
-    #print(KyList) # DEBUG
     # then try to cycle through the inputt list (InList) and apply the multiplication to it if the key reaches the end of it's limit then cycle back to beginning (VERY INSECURE)
     try:
         for i in range(len(InList)):
             counter += 1
-            #print(i) # DEBUG
-            #print(InList[i]) # DEBUG
-            #print(len(InList)) # DEBUG
+
             if counter > len(KyList)-1:
                 counter = counter - len(KyList)-1
-            #print(len(KyList)) # DEBUG
-            #print(counter) # DEBUG
-            #print(str(ord(InList[i])*ord(KyList[counter]))) # DEBUG
+
             InList[i] = b85encode(bytes(str(ord(InList[i])*ord(KyList[counter])), "UTF-8"))
             InList[i] = InList[i].decode()
-            #print(InList[i]) # DEBUG
-            #print(type(InList[i])) # DEBUG
-            #InList[i] = InList[i].replace("b'", '')
-            #InList[i] = InList[i].replace("'", '')
-            #print(InList[i]) # DEBUG
+
             if i > 0:
                 InList[i] = "39bgen" + InList[i]
 
