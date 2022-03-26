@@ -17,20 +17,27 @@ def main():
 
 def main2(msg, key, Encrypt=True):
 	if Encrypt:
-		pass
+		return(bbr.btwc(msg, key))
+	if not Encrypt:
+		return(bbrd.decode(msg, key))
 
 if __name__ == '__main__':
 	my_parser = argparse.ArgumentParser(description="Encrypt or decrypt some text according to a key")
 
+	key = ''
+	msg = ''
+
 	# add the arguments
 	my_parser.add_argument("msg",
-							metavar='Must supply a message to encrypt',
-							type=bool,
-							help='the message to encrypt')
-	my_parser.add_argument("key",
-							metavar="Must supply a key for encryption for better security",
+							metavar='Message',
 							type=str,
-							help='the key to encrypt the message')
+							action='store',
+							help='the message to encrypt (if there is spaces use quotes)')
+	my_parser.add_argument("key",
+							metavar="Key",
+							type=str,
+							action='store',
+							help='the key to encrypt the message (if there is spaces use quotes)')
 	args = my_parser.parse_args()
 
 	key = args.key
@@ -42,8 +49,8 @@ if __name__ == '__main__':
 		isenc = True
 	if isencs.lower() == 'd':
 		isenc = False
-	if isencs.lower() != 'e' or 'd':
+	if isencs.lower() != 'e' and isencs.lower() != 'd':
 		quit()
 
 
-	main2(msg, key, isenc)
+	print(main2(msg, key, isenc))
