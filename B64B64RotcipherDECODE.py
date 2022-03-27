@@ -32,8 +32,6 @@ def decode(msg, key):
         print("Custom Cipher Decode Failed (Exit code 1)")
         
     #print(InList)
-    tmp = ''
-    for i in InList:
-        tmp = tmp + i
+    tmp = ''.join(InList)
     output = b64decode(b64decode(bytes(tmp, "UTF-8"))).decode()
     return output

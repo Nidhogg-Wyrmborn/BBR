@@ -2,6 +2,8 @@
 from base64 import *
 import easygui
 import hashlib
+from tqdm import tqdm
+import threading, queue
 
 def Cstm(Input, Key):
     # change the Input and Key to string rather than bytes
@@ -12,7 +14,13 @@ def Cstm(Input, Key):
     InList = list(Input)
     KyList = list(Key)
 
+    print("[**] beginning custom cipher")
+
     counter = -1
+    #cycle = 0
+    #cyclewhole = 0
+    total = len(InList)
+    pbar = tqdm(total=total, position=0, leave=True)
     # then try to cycle through the inputt list (InList) and apply the multiplication to it if the key reaches the end of it's limit then cycle back to beginning (VERY INSECURE)
     try:
         for i in range(len(InList)):
@@ -20,12 +28,20 @@ def Cstm(Input, Key):
 
             if counter > len(KyList)-1:
                 counter = counter - len(KyList)-1
+            
+            #if i % 89457:
+            #cycle += 1
+            #if cycle > 499999:
+            #    cyclewhole = cyclewhole + cycle
+            #    cycle = 0
+            #    print(f"[**] Cycle: {cyclewhole}")
 
             InList[i] = b85encode(bytes(str(ord(InList[i])*ord(KyList[counter])), "UTF-8"))
             InList[i] = InList[i].decode()
 
             if i > 0:
                 InList[i] = "39bgen" + InList[i]
+            pbar.update()
 
     except Exception as e:
         # if there is an exception print it and then print "exit code 1 (Custom Encryption Failed)
@@ -39,11 +55,11 @@ def Cstm(Input, Key):
         # then return a None-type object
         return None
 
-    # create the op string (OutPut)
-    op = ''
-    for i in InList:
-        #print(i) # DEBUG
-        op = op + str(i)
+    print("[**] Finished custom cipher CAUTION Time after this point increases as ram is used to calculate the final encryption especially with larger volumes of data")
+
+    op=''.join(InList)
+    
+    print("[**] beginning final encoding")
 
     op = b64encode(bytes(op, "UTF-8"))
 
@@ -51,7 +67,7 @@ def Cstm(Input, Key):
     output = str(op)
     output = output.replace("b'", '')
     output = output.replace("'", '')
-
+    print("[**] Finished")
     return output
 
 
@@ -65,7 +81,7 @@ def btwc(Input, key):
 
     # convert the key to hash then base64
     Key = b64encode(bytes(str(hashlib.sha256(key.encode()).hexdigest()), "UTF-8"))
-
+    print("[**] Step 1: Complete")
     # return the completed encryption using my custom encryption method
     return Cstm(GfCstm, Key)
 

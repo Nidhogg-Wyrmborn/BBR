@@ -45,29 +45,30 @@ def decompress(tar_file, path, members=None):
 	# close the file
 	tar.close()
 
-def main():
-	while True:
-		c = easygui.buttonbox("Encrypt or Decrypt", choices = ["Encrypt", "Decrypt", "Quit"])
-		if c == "Encrypt":
-			easygui.msgbox(bbr.btwc(easygui.enterbox("Message"), easygui.passwordbox("Key")))
-		if c == "Decrypt":
-			easygui.msgbox(bbrd.decode(easygui.enterbox("Encrypted Message"), easygui.passwordbox("Key")))
-		if c == "Quit":
-			break
+#def main():
+#	while True:
+#		c = easygui.buttonbox("Encrypt or Decrypt", choices = ["Encrypt", "Decrypt", "Quit"])
+#		if c == "Encrypt":
+#			easygui.msgbox(bbr.btwc(easygui.enterbox("Message"), easygui.passwordbox("Key")))
+#		if c == "Decrypt":
+#			easygui.msgbox(bbrd.decode(easygui.enterbox("Encrypted Message"), easygui.passwordbox("Key")))
+#		if c == "Quit":
+#			break
 
-def main2(msg, key, Encrypt, isfile):
+def main(msg, key, Encrypt, isfile):
 	if Encrypt:
 		if not isfile:
 			return(bbr.btwc(msg, key))
 		if isfile:
-			with open(msg, 'r') as file:
+			with open(msg, 'r', encoding='latin1') as file:
 				rl = file.readlines()
 			
-			rs = ''
-			for i in rl:
-				rs = rs + i
+			with tqdm(rl, position=0, leave=True) as pbar:
+				rs = ''
+				for i in rl:
+					rs = rs + i
 
-			with open(msg+".bbr", 'w') as file:
+			with open(msg+".bbr", 'w', encoding='latin1') as file:
 				file.write(bbr.btwc(rs, key))
 
 			return f"encrypted file is {msg}.bbr"
@@ -76,14 +77,14 @@ def main2(msg, key, Encrypt, isfile):
 		if not isfile:
 			return(bbrd.decode(msg, key))
 		if isfile:
-			with open(msg, 'r') as file:
+			with open(msg, 'r', encoding='latin1') as file:
 				rl = file.readlines()
 
 			rs = ''
 			for i in rl:
 				rs = rs + i
 
-			with open(msg.replace(".bbr", ''), 'w') as file:
+			with open(msg.replace(".bbr", ''), 'w', encoding='latin1') as file:
 				file.write(bbrd.decode(rs, key))
 			return f"decrypted file is {msg.replace('.bbr','')}"
 
@@ -128,4 +129,4 @@ if __name__ == '__main__':
 		quit()
 
 
-	print(main2(msg, key, isencs, isfile))
+	print(main(msg, key, isencs, isfile))
