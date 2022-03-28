@@ -61,14 +61,11 @@ def Cstm(Input, Key):
     
     print("[**] beginning final encoding")
 
-    op = b64encode(bytes(op, "UTF-8"))
+    op = b64encode(op.encode())
 
     # convert bytes-like object to pure string no b'asofoiasjfoawejf' stuff
-    output = str(op)
-    output = output.replace("b'", '')
-    output = output.replace("'", '')
     print("[**] Finished")
-    return output
+    return op
 
 
 def btwc(Input, key):
