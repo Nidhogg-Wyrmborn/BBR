@@ -58,18 +58,20 @@ def decompress(tar_file, path, members=None):
 
 def main(msg, key, Encrypt, isfile):
     iscompressed = False
+    isall = False
     if Encrypt:
         if not isfile:
             return(bbr.btwc(msg, key).decode())
         if isfile:
             if msg == "*":
+                isall = True
                 l = list()
                 for r, d, f in os.walk("./"):
                     for file in f:
                         l.append(os.path.join(r, file))
-            filename = str(input('Filename to save as: '))
-            compress(f"{filename}.tar.gz", l)
-            msg = f"{filename}.tar.gz"
+                filename = str(input('Filename to save as: '))
+                compress(f"{filename}.tar.gz", l)
+                msg = f"{filename}.tar.gz"
             with open(msg, 'rb') as file:
                 rl = file.readlines()
             
@@ -77,8 +79,8 @@ def main(msg, key, Encrypt, isfile):
 
             with open(msg+".bbr", 'wb') as file:
                 file.write(bbr.btwc(rs, key))
-
-            os.remove(f"./{msg}")
+            if isall:
+                os.remove(f"./{msg}")
             
             return f"encrypted file is {msg}.bbr"
 
