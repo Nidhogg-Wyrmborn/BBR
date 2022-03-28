@@ -1,6 +1,6 @@
 # BBR
 My Encryption Project
 
-Feel free to use, 
-NOTE: Only as safe as it is if no-one sees the code, if you see the code you understand what it does;
-  if you want to try and reverse-engineer it feel free to, just be aware that this encryption method is not as secure as some other ones
+Feel free to use
+
+Note: If you use this to encrypt innappropriat materal (i mention this because one of my friends may use it as such) YOU are to blame, this software is entirely separate, it will be your responsibilty i am not going to be dragged into some argument/quarrel because of a users mistake.
