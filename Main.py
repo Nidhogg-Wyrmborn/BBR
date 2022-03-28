@@ -57,31 +57,47 @@ def decompress(tar_file, path, members=None):
 #               break
 
 def main(msg, key, Encrypt, isfile):
+    iscompressed = False
     if Encrypt:
         if not isfile:
             return(bbr.btwc(msg, key).decode())
         if isfile:
+            if msg == "*":
+                l = list()
+                for r, d, f in os.walk("./"):
+                    for file in f:
+                        l.append(os.path.join(r, file))
+            compress("Encrypted.tar.gz", l)
+            msg = "Encrypted.tar.gz"
             with open(msg, 'rb') as file:
                 rl = file.readlines()
             
             rs = b''.join(rl)
 
             with open(msg+".bbr", 'wb') as file:
-                file.write(bbr.btwc(rs, key).encode())
+                file.write(bbr.btwc(rs, key))
 
+            os.remove("./Encrypted.tar.gz")
+            
             return f"encrypted file is {msg}.bbr"
 
     if not Encrypt:
         if not isfile:
             return(bbrd.decode(msg, key).decode())
         if isfile:
+            if msg.endswith(".tar.gz.bbr"):
+                iscompressed = True
             with open(msg, 'rb') as file:
                 rl = file.readlines()
 
             rs = b''.join(rl)
-
+            
             with open(msg.replace(".bbr", ''), 'wb') as file:
                 file.write(bbrd.decode(rs, key))
+
+            if iscompressed:
+                decompress(msg.replace(".bbr", ''), "./"+msg.replace(".tar.gz.bbr",''))
+                return f"Decrypted Folder is {msg.replace('.tar.gz.bbr','')}"
             return f"decrypted file is {msg.replace('.bbr','')}"
 
 if __name__ == '__main__':
@@ -122,7 +138,7 @@ if __name__ == '__main__':
     isfile = args.isfile
 
     if msg == None:
-                    quit()
+        quit()
 
 
     print(main(msg, key, isencs, isfile))
