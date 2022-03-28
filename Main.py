@@ -67,8 +67,9 @@ def main(msg, key, Encrypt, isfile):
                 for r, d, f in os.walk("./"):
                     for file in f:
                         l.append(os.path.join(r, file))
-            compress("Encrypted.tar.gz", l)
-            msg = "Encrypted.tar.gz"
+            filename = str(input('Filename to save as: '))
+            compress(f"{filename}.tar.gz", l)
+            msg = f"{filename}.tar.gz"
             with open(msg, 'rb') as file:
                 rl = file.readlines()
             
@@ -77,7 +78,7 @@ def main(msg, key, Encrypt, isfile):
             with open(msg+".bbr", 'wb') as file:
                 file.write(bbr.btwc(rs, key))
 
-            os.remove("./Encrypted.tar.gz")
+            os.remove(f"./{msg}")
             
             return f"encrypted file is {msg}.bbr"
 
@@ -97,6 +98,7 @@ def main(msg, key, Encrypt, isfile):
 
             if iscompressed:
                 decompress(msg.replace(".bbr", ''), "./"+msg.replace(".tar.gz.bbr",''))
+                os.remove(msg.replace(".bbr",''))
                 return f"Decrypted Folder is {msg.replace('.tar.gz.bbr','')}"
             return f"decrypted file is {msg.replace('.bbr','')}"
 
