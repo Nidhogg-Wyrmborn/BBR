@@ -55,9 +55,9 @@ def Cstm(Input, Key):
         # then return a None-type object
         return None
 
-    print("[**] Finished custom cipher CAUTION Time after this point increases as ram is used to calculate the final encryption especially with larger volumes of data")
+    print("[**] Finished custom cipher, turning list into string...")
 
-    op=''.join(InList)
+    op = ''.join(InList)
     
     print("[**] beginning final encoding")
 
@@ -72,12 +72,16 @@ def Cstm(Input, Key):
 
 
 def btwc(Input, key):
-    # convert input to bytes-like object
-    Input = bytes(Input, "UTF-8")
+    if type(Input)!=type(b''):
+        # convert input to bytes-like object
+        Input = bytes(Input, "UTF-8")
 
     # encode the input with base 64 twice
     I2 = b64encode(Input)
     GfCstm = b64encode(I2)
+
+    if key == None:
+        key = ''
 
     # convert the key to hash then base64
     Key = b64encode(bytes(str(hashlib.sha256(key.encode()).hexdigest()), "UTF-8"))
