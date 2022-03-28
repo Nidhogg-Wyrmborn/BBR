@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import easygui
 import argparse
 import os
