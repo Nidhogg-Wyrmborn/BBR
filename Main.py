@@ -63,14 +63,35 @@ def main(msg, key, Encrypt, isfile):
         if not isfile:
             return(bbr.btwc(msg, key).decode())
         if isfile:
-            if msg == "*":
+            if msg.endswith("*"):
                 isall = True
                 l = list()
-                for r, d, f in os.walk("./"):
-                    for file in f:
-                        l.append(os.path.join(r, file))
+                if msg == "*":
+                    for r, d, f in os.walk("./"):
+                        for file in f:
+                            l.append(os.path.join(r, file))
+                elif msg != "*":
+                    msg = msg.replace("*", '')
+                    print(msg)
+                    for r, d, f in os.walk(msg):
+                        for file in f:
+                            l.append(os.path.join(r, file))
+
+                for i in l:
+                    with open(i, 'rb') as file:
+                        fl = file.readlines()
+                        flb = b''.join(fl)
+                    with open(i.split("/")[len(i.split("/"))-1], 'wb') as file:
+                        file.write(flb)
+
+                for i in range(len(l)):
+                    l[i] = l[i].split("/")[len(l[i].split("/"))-1]
+                
+                #print(l)
                 filename = str(input('Filename to save as: '))
                 compress(f"{filename}.tar.gz", l)
+                for i in l:
+                    os.remove(i)
                 msg = f"{filename}.tar.gz"
             with open(msg, 'rb') as file:
                 rl = file.readlines()
@@ -81,6 +102,7 @@ def main(msg, key, Encrypt, isfile):
                 file.write(bbr.btwc(rs, key))
             if isall:
                 os.remove(f"./{msg}")
+                #pass # DEBUG
             
             return f"encrypted file is {msg}.bbr"
 
