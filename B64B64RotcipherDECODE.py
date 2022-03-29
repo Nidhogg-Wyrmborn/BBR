@@ -45,6 +45,6 @@ def decode(msg, key):
         
     #print(InList)
     tmp = ''.join(InList)
-    print(type(tmp))
+    #print(type(tmp))
     output = b64decode(b64decode(tmp.encode()))
     return output
