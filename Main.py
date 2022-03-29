@@ -132,7 +132,7 @@ if __name__ == '__main__':
     # add the arguments
     requiredName = my_parser.add_argument_group("Required Named Arguements")
     requiredName.add_argument("-m", "--message",
-                            metavar='Message',
+                            metavar='<Message>',
                             type=str,
                             action='store',
                             dest='msg',
