@@ -81,11 +81,11 @@ def main(msg, key, Encrypt, isfile):
                     with open(i, 'rb') as file:
                         fl = file.readlines()
                         flb = b''.join(fl)
-                    with open(i.split("/")[len(i.split("/"))-1], 'wb') as file:
+                    with open("./tmp/"+i.split("/")[len(i.split("/"))-1], 'wb') as file:
                         file.write(flb)
 
                 for i in range(len(l)):
-                    l[i] = l[i].split("/")[len(l[i].split("/"))-1]
+                    l[i] = "./tmp/"+l[i].split("/")[len(l[i].split("/"))-1]
                 
                 #print(l)
                 filename = str(input('Filename to save as: '))
