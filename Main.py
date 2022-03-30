@@ -21,7 +21,7 @@ def compress(tar_file, members):
     for member in progress:
         # add file/folder/link to the tar file (Compress)
         tar.add(member)
-        # set the progress description of the progress bar
+        # set the progress description of the progress bar to the file being compressed
         progress.set_description(f"Compressing {member}")
     # close the file
     tar.close()
