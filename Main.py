@@ -103,7 +103,7 @@ def main(msg, key, Encrypt, isfile):
                             i = i + f
                     #print(i)
 
-                    if "\\" in i:
+                    while "\\" in i:
                         i = i.replace("\\", "/")
                     
                     im = ''
