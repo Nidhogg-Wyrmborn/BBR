@@ -3,6 +3,7 @@ import easygui
 import argparse
 import os
 import sys
+import shutil
 import time
 import zipfile
 from tqdm import tqdm
@@ -92,7 +93,7 @@ def main(msg, key, Encrypt, isfile):
                         i = ''
                         for f in il:
                             i = i + f
-                    print(i)
+                    #print(i)
 
                     if i.startswith("./"):
                         il = i.split("/")
@@ -100,7 +101,7 @@ def main(msg, key, Encrypt, isfile):
                         i = ''
                         for f in il:
                             i = i + f
-                    print(i)
+                    #print(i)
 
                     if "\\" in i:
                         i = i.replace("\\", "/")
@@ -108,13 +109,13 @@ def main(msg, key, Encrypt, isfile):
                     im = ''
 
                     a = i.split("/")
-                    print(a, type(a))
+                    #print(a, type(a))
                     if type(a) == type(['','']):
                         if len(a)>1:
                             i = a[-1]
                             a = a[:-1]
                             im = '/'.join(a)
-                    print(im)
+                    #print(im)
                     
                     if im != '':
                         try:
@@ -132,22 +133,9 @@ def main(msg, key, Encrypt, isfile):
                 for i in range(len(l)):
                     l[i] = f"./{filename}/"+l[i].split("/")[len(l[i].split("/"))-1]
                 
-                print(l)
+                #print(l)
                 compress(f"{filename}.tar.gz", l)
-                l = list()
-                dirs = list()
-                for r, d, f in os.walk("./{filename}/"):
-                    for file in f:
-                        l.append(os.path.join(r, file))
-                    for direc in d:
-                        dirs.append(os.path.join(r, direc))
-                for i in l:
-                    print(i, end="\r")
-                    os.remove(i)
-                    time.sleep(0.25)
-                for i in dirs:
-                    os.removedirs(i)
-                os.removedirs(f"{filename}")
+                shutil.rmtree(f"{filename}")
                 msg = f"{filename}.tar.gz"
             with open(msg, 'rb') as file:
                 rl = file.readlines()
