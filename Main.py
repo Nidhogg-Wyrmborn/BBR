@@ -10,6 +10,8 @@ import tarfile
 import B64B64Rotcipher as bbr
 import B64B64RotcipherDECODE as bbrd
 
+exceptions = []
+
 def compress(tar_file, members):
     """
     Adds files (`members`) to a tar_file and compresses it
@@ -78,6 +80,7 @@ def main(msg, key, Encrypt, isfile):
                     for r, d, f in os.walk(msg):
                         for file in f:
                             l.append(os.path.join(r, file))
+                os.makedirs(f"{filename}")
                 for i in l:
                     with open(i, 'rb') as file:
                         fl = file.readlines()
@@ -90,34 +93,60 @@ def main(msg, key, Encrypt, isfile):
                         for f in il:
                             i = i + f
                     print(i)
+
+                    if i.startswith("./"):
+                        il = i.split("/")
+                        il.pop(0)
+                        i = ''
+                        for f in il:
+                            i = i + f
+                    print(i)
+
+                    if "\\" in i:
+                        i = i.replace("\\", "/")
                     
                     im = ''
 
                     a = i.split("/")
-                    a = a.pop(len(a)-1)
                     print(a, type(a))
-                    for b in a:
-                        print(b)
-                        im = im + b
+                    if type(a) == type(['','']):
+                        if len(a)>1:
+                            i = a[-1]
+                            a = a[:-1]
+                            im = '/'.join(a)
                     print(im)
-                    os.makedirs(f"./{filename}/{im}")
-                    with open(f"./{filename}/{im}/"+i, 'wb') as file:
-                        file.write(flb)
+                    
+                    if im != '':
+                        try:
+                            os.makedirs(f"./{filename}/{im}")
+                        except Exception as e:
+                            exceptions.append(e)
+                            pass
+                        with open(f"./{filename}/{im}/"+i, 'wb') as file:
+                            file.write(flb)
+                    if im == '':
+                        with open(f"./{filename}/"+i, 'wb') as file:
+                            file.write(flb)
 
 
                 for i in range(len(l)):
                     l[i] = f"./{filename}/"+l[i].split("/")[len(l[i].split("/"))-1]
                 
-                #print(l)
+                print(l)
                 compress(f"{filename}.tar.gz", l)
                 l = list()
-                for r, d, f in os.walk("./tmp/"):
+                dirs = list()
+                for r, d, f in os.walk("./{filename}/"):
                     for file in f:
                         l.append(os.path.join(r, file))
+                    for direc in d:
+                        dirs.append(os.path.join(r, direc))
                 for i in l:
-                    #print(i, end="\r")
+                    print(i, end="\r")
                     os.remove(i)
-                    #time.sleep(1)
+                    time.sleep(0.25)
+                for i in dirs:
+                    os.removedirs(i)
                 os.removedirs(f"{filename}")
                 msg = f"{filename}.tar.gz"
             with open(msg, 'rb') as file:
@@ -193,6 +222,9 @@ if __name__ == '__main__':
     if msg == None:
         quit()
 
-
-    print(main(msg, key, isencs, isfile))
+    try:
+        print(main(msg, key, isencs, isfile))
+    except Exception as e:
+        print(e)
+        #print(exceptions, "Have occured")
 
