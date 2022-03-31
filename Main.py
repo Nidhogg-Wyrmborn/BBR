@@ -3,6 +3,7 @@ import easygui
 import argparse
 import os
 import sys
+import time
 import zipfile
 from tqdm import tqdm
 import tarfile
@@ -64,6 +65,7 @@ def main(msg, key, Encrypt, isfile):
             return(bbr.btwc(msg, key).decode())
         if isfile:
             if msg.endswith("*"):
+                filename = str(input('Filename to save as: '))
                 isall = True
                 l = list()
                 if msg == "*":
@@ -72,26 +74,51 @@ def main(msg, key, Encrypt, isfile):
                             l.append(os.path.join(r, file))
                 elif msg != "*":
                     msg = msg.replace("*", '')
-                    print(msg)
+                    #print(msg)
                     for r, d, f in os.walk(msg):
                         for file in f:
                             l.append(os.path.join(r, file))
-
                 for i in l:
                     with open(i, 'rb') as file:
                         fl = file.readlines()
                         flb = b''.join(fl)
-                    with open("./tmp/"+i.split("/")[len(i.split("/"))-1], 'wb') as file:
+
+                    while i.startswith("../"):
+                        il = i.split("/")
+                        il.pop(0)
+                        i = ''
+                        for f in il:
+                            i = i + f
+                    print(i)
+                    
+                    im = ''
+
+                    a = i.split("/")
+                    a = a.pop(len(a)-1)
+                    print(a, type(a))
+                    for b in a:
+                        print(b)
+                        im = im + b
+                    print(im)
+                    os.makedirs(f"./{filename}/{im}")
+                    with open(f"./{filename}/{im}/"+i, 'wb') as file:
                         file.write(flb)
 
+
                 for i in range(len(l)):
-                    l[i] = "./tmp/"+l[i].split("/")[len(l[i].split("/"))-1]
+                    l[i] = f"./{filename}/"+l[i].split("/")[len(l[i].split("/"))-1]
                 
                 #print(l)
-                filename = str(input('Filename to save as: '))
                 compress(f"{filename}.tar.gz", l)
+                l = list()
+                for r, d, f in os.walk("./tmp/"):
+                    for file in f:
+                        l.append(os.path.join(r, file))
                 for i in l:
+                    #print(i, end="\r")
                     os.remove(i)
+                    #time.sleep(1)
+                os.removedirs(f"{filename}")
                 msg = f"{filename}.tar.gz"
             with open(msg, 'rb') as file:
                 rl = file.readlines()
