@@ -244,6 +244,7 @@ if __name__ == '__main__':
 
     if msg == None:
         mainwindow()
+        quit()
 
     try:
         print(main(msg, key, isencs, isfile))
