@@ -67,88 +67,109 @@ def main(msg, key, Encrypt, isfile):
         if not isfile:
             return(bbr.btwc(msg, key).decode())
         if isfile:
-            if msg.endswith("*"):
-                filename = str(input('Filename to save as: '))
-                isall = True
-                l = list()
-                if msg == "*":
-                    for r, d, f in os.walk("./"):
-                        for file in f:
-                            l.append(os.path.join(r, file))
-                elif msg != "*":
-                    msg = msg.replace("*", '')
-                    #print(msg)
-                    for r, d, f in os.walk(msg):
-                        for file in f:
-                            l.append(os.path.join(r, file))
-                os.makedirs(f"{filename}")
-                for i in l:
-                    with open(i, 'rb') as file:
-                        fl = file.readlines()
-                        flb = b''.join(fl)
+            try:
+                if msg.endswith("*"):
+                    filename = str(input('Filename to save as: '))
+                    isall = True
+                    l = list()
+                    if msg == "*":
+                        for r, d, f in os.walk("./"):
+                            for file in f:
+                                l.append(os.path.join(r, file))
+                    elif msg != "*":
+                        msg = msg.replace("*", '')
+                        #print(msg)
+                        for r, d, f in os.walk(msg):
+                            for file in f:
+                                l.append(os.path.join(r, file))
+                    os.makedirs(f"{filename}")
+                    for i in l:
+                        with open(i, 'rb') as file:
+                            fl = file.readlines()
+                            flb = b''.join(fl)
 
-                    while i.startswith("../"):
-                        il = i.split("/")
-                        il.pop(0)
-                        i = ''
-                        for f in il:
-                            i = i + f
-                    #print(i)
+                        while i.startswith("../"):
+                            il = i.split("/")
+                            il.pop(0)
+                            i = '/'.join(il)
+                        #print(i)
 
-                    if i.startswith("./"):
-                        il = i.split("/")
-                        il.pop(0)
-                        i = ''
-                        for f in il:
-                            i = i + f
-                    #print(i)
+                        if i.startswith("./"):
+                            il = i.split("/")
+                            il.pop(0)
+                            i = ''
+                            for f in il:
+                                i = i + f
+                        #print(i)
 
-                    while "\\" in i:
-                        i = i.replace("\\", "/")
-                    
-                    im = ''
+                        while "\\" in i:
+                            i = i.replace("\\", "/")
+                        
+                        im = ''
 
-                    a = i.split("/")
-                    #print(a, type(a))
-                    if type(a) == type(['','']):
-                        if len(a)>1:
+                        a = i.split("/")
+                        #print(a, type(a))
+                        if type(a) == type(['','']):
                             i = a[-1]
                             a = a[:-1]
                             im = '/'.join(a)
-                    #print(im)
+                        #print(im)
+                        
+                        if im != '':
+                            try:
+                                os.makedirs(f"./{filename}/{im}")
+                            except Exception as e:
+                                exceptions.append(e)
+                                pass
+                            with open(f"./{filename}/{im}/"+i, 'wb') as file:
+                                file.write(flb)
+                        if im == '':
+                            with open(f"./{filename}/"+i, 'wb') as file:
+                                file.write(flb)
+
+
+                    for i in range(len(l)):
+                        l[i] = f"./{filename}/"+l[i].split("/")[len(l[i].split("/"))-1]
                     
-                    if im != '':
-                        try:
-                            os.makedirs(f"./{filename}/{im}")
-                        except Exception as e:
-                            exceptions.append(e)
-                            pass
-                        with open(f"./{filename}/{im}/"+i, 'wb') as file:
-                            file.write(flb)
-                    if im == '':
-                        with open(f"./{filename}/"+i, 'wb') as file:
-                            file.write(flb)
-
-
-                for i in range(len(l)):
-                    l[i] = f"./{filename}/"+l[i].split("/")[len(l[i].split("/"))-1]
+                    #print(l)
+                    l=list()
+                    for r, d, f in os.walk(f"./{filename}/"):
+                        for file in f:
+                            l.append(os.path.join(r, file))
+                    compress(f"{filename}.tar.gz", l)
+                    shutil.rmtree(f"{filename}")
+                    msg = f"{filename}.tar.gz"
+                with open(msg, 'rb') as file:
+                    rl = file.readlines()
                 
-                #print(l)
-                compress(f"{filename}.tar.gz", l)
-                shutil.rmtree(f"{filename}")
-                msg = f"{filename}.tar.gz"
-            with open(msg, 'rb') as file:
-                rl = file.readlines()
-            
-            rs = b''.join(rl)
+                rs = b''.join(rl)
 
-            with open(msg+".bbr", 'wb') as file:
-                file.write(bbr.btwc(rs, key))
-            if isall:
-                os.remove(f"./{msg}")
-                #pass # DEBUG
-            
-            return f"encrypted file is {msg}.bbr"
+                with open(msg+".bbr", 'wb') as file:
+                    file.write(bbr.btwc(rs, key))
+                if isall:
+                    os.remove(f"./{msg}")
+                    #pass # DEBUG
+                
+                return f"encrypted file is {msg}.bbr"
+            except KeyboardInterrupt as e:
+                print("User Interrupted")
+                print("Removing Temporary Folders/Files...")
+                try:
+                    shutil.rmtree(f"{filename}")
+                except:
+                    pass
+                try:
+                    os.remove(f"{filename}.tar.gz.bbr")
+                except:
+                    pass
+                try:
+                    os.remove(f"{filename}.tar.gz")
+                except:
+                    pass
+                try:
+                    os.remove(f"{msg}.bbr")
+                except:
+                    pass
 
     if not Encrypt:
         if not isfile:
@@ -214,5 +235,5 @@ if __name__ == '__main__':
         print(main(msg, key, isencs, isfile))
     except Exception as e:
         print(e)
-        #print(exceptions, "Have occured")
+        print("\n\n",exceptions, "Have occured")
 
