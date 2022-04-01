@@ -60,33 +60,42 @@ def decompress(tar_file, path, members=None):
 #            if c == "Quit":
 #               break
 
-def main(msg, key, Encrypt, isfile):
+def main(msg, key, Encrypt, isfile, iswindow=False, ismultiple=False):
     iscompressed = False
     isall = False
+    if "*" in msg or type(msg) == type(list):
+        ismultiple = True
     if Encrypt:
         if not isfile:
             return(bbr.btwc(msg, key).decode())
         if isfile:
             try:
-                if msg.endswith("*"):
-                    filename = str(input('Filename to save as: '))
+                if ismultiple:
+                    if not iswindow:
+                        filename = str(input('Filename to save as: '))
+                    if iswindow:
+                        finalfilename = easygui.filesavebox()
+                        filename = finalfilename.split('/')[-1]
                     isall = True
                     l = list()
-                    if msg == "*":
+                    if msg == "*" and type(msg)==type(''):
                         for r, d, f in os.walk("./"):
                             for file in f:
                                 l.append(os.path.join(r, file))
-                    elif msg != "*":
+                    elif msg != "*" and type(msg)==type(''):
                         msg = msg.replace("*", '')
                         #print(msg)
                         for r, d, f in os.walk(msg):
                             for file in f:
                                 l.append(os.path.join(r, file))
                     os.makedirs(f"{filename}")
+                    if len(l)==0:
+                        l = msg
                     for i in l:
                         with open(i, 'rb') as file:
                             fl = file.readlines()
                             flb = b''.join(fl)
+                            file.close()
 
                         while i.startswith("../"):
                             il = i.split("/")
@@ -122,7 +131,7 @@ def main(msg, key, Encrypt, isfile):
                                 exceptions.append(e)
                                 pass
                             with open(f"./{filename}/{im}/"+i, 'wb') as file:
-                                file.write(flb)
+                                    file.write(flb)
                         if im == '':
                             with open(f"./{filename}/"+i, 'wb') as file:
                                 file.write(flb)
@@ -139,13 +148,16 @@ def main(msg, key, Encrypt, isfile):
                     compress(f"{filename}.tar.gz", l)
                     shutil.rmtree(f"{filename}")
                     msg = f"{filename}.tar.gz"
+
                 with open(msg, 'rb') as file:
                     rl = file.readlines()
+                    file.close()
                 
                 rs = b''.join(rl)
 
                 with open(msg+".bbr", 'wb') as file:
                     file.write(bbr.btwc(rs, key))
+                    file.close()
                 if isall:
                     os.remove(f"./{msg}")
                     #pass # DEBUG
@@ -203,8 +215,16 @@ def mainwindow():
     #
     # Please be familiar with python and feel free to experiment in the IDLE
     # window. If there is an error it's fine find a way to fix it
-    pass
-
+    running = True
+    while running:
+        c = easygui.buttonbox("Encrypt or Decrypt", choices = ['Encrypt','Encrypt File','Decrypt','Decrypt File','Quit'])
+        if c == "Encrypt":
+            easygui.msgbox(main(easygui.enterbox("Message"), easygui.enterbox("Key"), True, False, True))
+        if c == "Encrypt File":
+            Filename = main(easygui.fileopenbox(multiple=True), easygui.enterbox("Key"), True, True, True, True)
+            easygui.msgbox(f"File is saved as {Filename}")
+        if c == "Quit":
+            running = False
 if __name__ == '__main__':
     my_parser = argparse.ArgumentParser(description="Encrypt or decrypt some text according to a key")
 
@@ -244,6 +264,7 @@ if __name__ == '__main__':
 
     if msg == None:
         mainwindow()
+        quit()
 
     try:
         print(main(msg, key, isencs, isfile))
