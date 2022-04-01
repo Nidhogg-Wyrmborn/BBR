@@ -203,6 +203,7 @@ def mainwindow():
     #
     # Please be familiar with python and feel free to experiment in the IDLE
     # window. If there is an error it's fine find a way to fix it
+    pass
 
 if __name__ == '__main__':
     my_parser = argparse.ArgumentParser(description="Encrypt or decrypt some text according to a key")
