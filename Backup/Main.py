@@ -215,7 +215,7 @@ if __name__ == '__main__':
                             type=str,
                             action='store',
                             dest='msg',
-                            #required=True,
+                            required=True,
                             help='the message to encrypt (if there is spaces use quotes)')
     my_parser.add_argument("-k", "--key",
                             metavar="Key",
@@ -243,8 +243,8 @@ if __name__ == '__main__':
     isfile = args.isfile
 
     if msg == None:
-        mainwindow()
-
+        quit()
+        
     try:
         print(main(msg, key, isencs, isfile))
     except Exception as e:
