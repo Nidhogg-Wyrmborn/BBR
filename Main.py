@@ -149,17 +149,17 @@ def main(msg, key, Encrypt, isfile, iswindow=False, ismultiple=False):
                     shutil.rmtree(f"{filename}")
                     msg = f"{filename}.tar.gz"
 
-                with open(msgs, 'rb') as file:
+                with open(msg, 'rb') as file:
                     rl = file.readlines()
                     file.close()
                 
                 rs = b''.join(rl)
 
-                with open(msgs+".bbr", 'wb') as file:
+                with open(msg+".bbr", 'wb') as file:
                     file.write(bbr.btwc(rs, key))
                     file.close()
                 if isall:
-                    os.remove(f"./{msgs}")
+                    os.remove(f"./{msg}")
                     #pass # DEBUG
                 
                 return f"encrypted file is {msg}.bbr"
