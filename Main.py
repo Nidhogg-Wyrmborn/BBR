@@ -191,6 +191,19 @@ def main(msg, key, Encrypt, isfile):
                 return f"Decrypted Folder is {msg.replace('.tar.gz.bbr','')}"
             return f"decrypted file is {msg.replace('.bbr','')}"
 
+def mainwindow():
+    # using easygui and tkinter create windows to show progress and create a
+    # way for users to interact with the program away from the command-line
+    #
+    # Requirements: Uses either Easygui or Tkinter for the windows
+    # adds Progress bars (Use Tkinter for this)
+    # adds File Selection (Easygui has something for this)
+    # adds file saving (allows the program to save to a location)
+    # make sure the user can select multiple files (e.g. *, or just 2 out of 9)
+    #
+    # Please be familiar with python and feel free to experiment in the IDLE
+    # window. If there is an error it's fine find a way to fix it
+
 if __name__ == '__main__':
     my_parser = argparse.ArgumentParser(description="Encrypt or decrypt some text according to a key")
 
@@ -201,7 +214,7 @@ if __name__ == '__main__':
                             type=str,
                             action='store',
                             dest='msg',
-                            required=True,
+                            #required=True,
                             help='the message to encrypt (if there is spaces use quotes)')
     my_parser.add_argument("-k", "--key",
                             metavar="Key",
@@ -229,7 +242,7 @@ if __name__ == '__main__':
     isfile = args.isfile
 
     if msg == None:
-        quit()
+        mainwindow()
 
     try:
         print(main(msg, key, isencs, isfile))
