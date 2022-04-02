@@ -76,6 +76,7 @@ def main(msg, key, Encrypt, isfile, iswindow=False, ismultiple=False):
                     if iswindow:
                         finalfilename = easygui.filesavebox()
                         filename = finalfilename.split('/')[-1]
+                        print(filename)
                     isall = True
                     l = list()
                     if msg == "*" and type(msg)==type(''):
@@ -163,6 +164,7 @@ def main(msg, key, Encrypt, isfile, iswindow=False, ismultiple=False):
                     #pass # DEBUG
                 
                 return f"encrypted file is {msg}.bbr"
+
             except KeyboardInterrupt as e:
                 print("User Interrupted")
                 print("Removing Temporary Folders/Files...")
@@ -183,6 +185,7 @@ def main(msg, key, Encrypt, isfile, iswindow=False, ismultiple=False):
                 except:
                     pass
 
+
     if not Encrypt:
         if not isfile:
             return(bbrd.decode(msg, key).decode())
@@ -202,6 +205,7 @@ def main(msg, key, Encrypt, isfile, iswindow=False, ismultiple=False):
                 os.remove(msg.replace(".bbr",''))
                 return f"Decrypted Folder is {msg.replace('.tar.gz.bbr','')}"
             return f"decrypted file is {msg.replace('.bbr','')}"
+
 
 def mainwindow():
     # using easygui and tkinter create windows to show progress and create a
@@ -225,6 +229,8 @@ def mainwindow():
             easygui.msgbox(f"File is saved as {Filename}")
         if c == "Quit":
             running = False
+
+
 if __name__ == '__main__':
     my_parser = argparse.ArgumentParser(description="Encrypt or decrypt some text according to a key")
 
