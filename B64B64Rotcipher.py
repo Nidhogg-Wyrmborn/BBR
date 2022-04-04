@@ -5,7 +5,7 @@ import hashlib
 from tqdm import tqdm
 import threading, queue
 
-def Cstm(Input, Key):
+def Cstm(Input, Key, windowed):
     # change the Input and Key to string rather than bytes
     Input = Input.decode()
     Key = Key.decode()
@@ -14,13 +14,17 @@ def Cstm(Input, Key):
     InList = list(Input)
     KyList = list(Key)
 
-    print("[**] beginning custom cipher")
+    if not windowed:
+        print("[**] beginning custom cipher")
 
     counter = -1
     #cycle = 0
     #cyclewhole = 0
-    total = len(InList)
-    pbar = tqdm(total=total, position=0, leave=True)
+    if not windowed:
+        total = len(InList)
+        pbar = tqdm(total=total, position=0, leave=True)
+    if windowed:
+        pass
     # then try to cycle through the inputt list (InList) and apply the multiplication to it if the key reaches the end of it's limit then cycle back to beginning (VERY INSECURE)
     try:
         for i in range(len(InList)):
@@ -68,10 +72,10 @@ def Cstm(Input, Key):
     return op
 
 
-def btwc(Input, key):
+def btwc(Input, key, windowed=False):
     if type(Input)!=type(b''):
         # convert input to bytes-like object
-        Input = bytes(Input, "UTF-8")
+        Input = Input.encode()
 
     # encode the input with base 64 twice
     I2 = b64encode(Input)
@@ -82,9 +86,10 @@ def btwc(Input, key):
 
     # convert the key to hash then base64
     Key = b64encode(bytes(str(hashlib.sha256(key.encode()).hexdigest()), "UTF-8"))
-    print("[**] Step 1: Complete")
+    if not windowed:
+        print("[**] Step 1: Complete")
     # return the completed encryption using my custom encryption method
-    return Cstm(GfCstm, Key)
+    return Cstm(GfCstm, Key, windowed)
 
 
 
