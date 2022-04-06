@@ -45,7 +45,8 @@ def Cstm(Input, Key, windowed):
 
             if i > 0:
                 InList[i] = "39bgen" + InList[i]
-            pbar.update()
+            if not windowed:
+                pbar.update()
 
     except Exception as e:
         # if there is an exception print it and then print "exit code 1 (Custom Encryption Failed)
@@ -59,16 +60,19 @@ def Cstm(Input, Key, windowed):
         # then return a None-type object
         return None
 
-    print("[**] Finished custom cipher, turning list into string...")
+    if not windowed:
+        print("[**] Finished custom cipher, turning list into string...")
 
     op = ''.join(InList)
-    
-    print("[**] beginning final encoding")
+
+    if not windowed:
+        print("[**] beginning final encoding")
 
     op = b64encode(op.encode())
 
     # convert bytes-like object to pure string no b'asofoiasjfoawejf' stuff
-    print("[**] Finished")
+    if not windowed:
+        print("[**] Finished")
     return op
 
 
