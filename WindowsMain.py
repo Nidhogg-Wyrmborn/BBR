@@ -4,26 +4,41 @@ import B64B64Rotcipher as bbr
 import tarfile
 import os
 import sys
+from threading import Thread
 from tqdm import tqdm
 from tkinter import *
 from tkinter.ttk import *
 import easygui
 
 class tkProgressbar():
+    global self
     def __init__(self, total=int, Title=str, Orientation=HORIZONTAL, Determinate=False):
         self.total = total
-        self.p2jmp = total/100
         self.tdone = float(0)
         self.nctdn = 0
+        self.value = 0
+        self.Title = Title
         self.isDet = Determinate
+        self.Orint = Orientation
+        self.p2jmp = self.total/100
         self.root = Tk()
-        self.root.title(Title)
+        self.root.title(self.Title)
         self.root.geometry('400x250+1000+300')
-        if not self.isDet:
-            self.pb1 = Progressbar(self.root, orient=Orientation, length=100, mode='indeterminate')
-        if self.isDet:
-            self.pb1 = Progressbar(self.root, orient=Orientation, length=100, mode='determinate')
-        self.pb1.pack(expand=True)
+        def Activate():
+            if not self.isDet:
+                self.pb1 = Progressbar(self.root, orient=self.Orint, length=100, mode='indeterminate')
+            if self.isDet:
+                self.pb1 = Progressbar(self.root, orient=self.Orint, length=100, mode='determinate')
+            self.pb1.pack(expand=True)
+            def pUpdate():
+                self.pb1['value'] = self.value
+                self.root.update()
+                print(self.nctdn, self.total)
+                if self.nctdn >= self.total:
+                    self.root.destroy()
+                self.root.after(10, pUpdate)
+        self.root.after(0, Activate)
+        self.root.mainloop()
         
 
     def update(self, amount):
@@ -32,12 +47,13 @@ class tkProgressbar():
         while self.tdone >= self.p2jmp:
             if self.tdone >= self.p2jmp*2:
                 self.tdone -= self.p2jmp*2
-                self.pb1['value'] += 2
+                self.value += 2
                 continue
             self.tdone -= self.p2jmp
-            self.pb1['value'] += 1
-        if self.nctdn >= self.total:
-            self.root.destroy()
+            self.value += 1
+
+    def description(self, Desc):
+        self.DesLV = Desc
         
         
 
@@ -54,6 +70,7 @@ def compresstree(tar_file, members):
                 file2write.write(fs)
     for i in range(len(members)):
         members[i] = f"./{tar_file.replace('.tar.gz','')}/{members[i].split('/')[len(members[i].split('/'))-1]}"
+    print(f"{tar_file}--{members}")
     compress(tar_file,members)
 
 
@@ -66,11 +83,13 @@ def compress(tar_file, members):
     # with progress bar
     # set the progress bar
     progress = tkProgressbar(len(members), "Compressing", Determinate=True)
+    #Thread(target=progress.InitializeWindow, args=(), daemon=True).start()
     for member in members:
         # add file/folder/link to the tar file (Compress)
         tar.add(member)
         # set the progress description of the progress bar to the file being compressed
         progress.update(1)
+        progress.description(f"Extracting {member}")
     # close the file
     tar.close()
 
