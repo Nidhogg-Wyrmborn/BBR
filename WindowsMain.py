@@ -24,21 +24,31 @@ class tkProgressbar():
         self.root = Tk()
         self.root.title(self.Title)
         self.root.geometry('400x250+1000+300')
-        def Activate():
-            if not self.isDet:
-                self.pb1 = Progressbar(self.root, orient=self.Orint, length=100, mode='indeterminate')
-            if self.isDet:
-                self.pb1 = Progressbar(self.root, orient=self.Orint, length=100, mode='determinate')
-            self.pb1.pack(expand=True)
-            def pUpdate():
+        if not self.isDet:
+            self.pb1 = Progressbar(self.root, orient=self.Orint, length=100, mode='indeterminate')
+        if self.isDet:
+            self.pb1 = Progressbar(self.root, orient=self.Orint, length=100, mode='determinate')
+        self.pb1.pack(expand=True)
+        self.DesLV = ''
+        self.DescL = Label(self.root)
+        self.DescL.pack()
+        def pUpdate():
+            try:
+                self.root.update_idletasks()
                 self.pb1['value'] = self.value
+                self.DescL['text'] = self.DesLV
                 self.root.update()
-                print(self.nctdn, self.total)
+                #print(self.nctdn, self.total)
                 if self.nctdn >= self.total:
                     self.root.destroy()
-                self.root.after(10, pUpdate)
-        self.root.after(0, Activate)
-        self.root.mainloop()
+                try:
+                    self.root.after(10, pUpdate)
+                except:
+                    pass
+            except Exception as e:
+                #print(str(e)+"\n\nHappened in pUpdated()")
+                pass
+        pUpdate()
         
 
     def update(self, amount):
@@ -51,9 +61,17 @@ class tkProgressbar():
                 continue
             self.tdone -= self.p2jmp
             self.value += 1
+        try:
+            self.root.update()
+        except:
+            pass
 
     def description(self, Desc):
         self.DesLV = Desc
+        try:
+            self.root.update()
+        except:
+            pass
         
         
 
@@ -70,7 +88,7 @@ def compresstree(tar_file, members):
                 file2write.write(fs)
     for i in range(len(members)):
         members[i] = f"./{tar_file.replace('.tar.gz','')}/{members[i].split('/')[len(members[i].split('/'))-1]}"
-    print(f"{tar_file}--{members}")
+    #print(f"{tar_file}--{members}")
     compress(tar_file,members)
 
 
@@ -85,11 +103,11 @@ def compress(tar_file, members):
     progress = tkProgressbar(len(members), "Compressing", Determinate=True)
     #Thread(target=progress.InitializeWindow, args=(), daemon=True).start()
     for member in members:
+        progress.description(f"Compressing {member}")
         # add file/folder/link to the tar file (Compress)
         tar.add(member)
         # set the progress description of the progress bar to the file being compressed
         progress.update(1)
-        progress.description(f"Extracting {member}")
     # close the file
     tar.close()
 
@@ -121,7 +139,7 @@ def decrypt(msg, key):
 
 def efile(fpath, spath, key):
     try:
-        print(fpath)
+        #print(fpath)
         if len(fpath)==1:
             fpath = fpath[0]
             compressed = False
@@ -135,16 +153,18 @@ def efile(fpath, spath, key):
         fs = b''.join(fl)
 
         if compressed:
-            print(spath)
+            #print(spath)
             if spath.endswith('.bbr'):
                 spath = spath.replace(".bbr", '')
             with open(spath+".tar.gz.bbr", 'wb') as file:
                 file.write(bbr.btwc(fs, key, True))
+            return spath+".tar.gz.bbr"
         elif not compressed:
             if not spath.endswith(".bbr"):
                 spath = spath + ".bbr"
             with open(spath, 'wb') as file:
                 file.write(bbr.btwc(fs, key, True))
+            return spath
     except KeyboardInterrupt:
         print("User Interrupt")
         print("Removing Temporary files")
@@ -183,7 +203,7 @@ def main():
             easygui.msgbox(encrypt(easygui.enterbox("Message to encrypt:"),easygui.enterbox("Passcode:")))
 
         if c == "Encrypt File":
-            efile(easygui.fileopenbox(multiple=True), easygui.filesavebox(default='Encrypted.bbr'), easygui.enterbox("Passcode:"))
+            easygui.msgbox(efile(easygui.fileopenbox(multiple=True), easygui.filesavebox(default='Encrypted.bbr'), easygui.enterbox("Passcode:")))
 
         if c == "Decrypt":
             easygui.msgbox(decrypt(easygui.enterbox("Message to decrypt:"),easygui.enterbox("Passcode:")))
