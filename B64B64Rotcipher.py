@@ -2,6 +2,8 @@
 from base64 import *
 import easygui
 import hashlib
+from tkinter import *
+import tkPBar as tpb
 from tqdm import tqdm
 import threading, queue
 
@@ -24,7 +26,8 @@ def Cstm(Input, Key, windowed):
         total = len(InList)
         pbar = tqdm(total=total, position=0, leave=True)
     if windowed:
-        pass
+        total = len(InList)
+        pbar = tpb.tkProgressbar(total,"Beginning Custom Cipher",Determinate=True)
     # then try to cycle through the inputt list (InList) and apply the multiplication to it if the key reaches the end of it's limit then cycle back to beginning (VERY INSECURE)
     try:
         for i in range(len(InList)):
@@ -47,6 +50,9 @@ def Cstm(Input, Key, windowed):
                 InList[i] = "39bgen" + InList[i]
             if not windowed:
                 pbar.update()
+            if windowed:
+                pbar.description(f"{i}/{total}")
+                pbar.update(1)
 
     except Exception as e:
         # if there is an exception print it and then print "exit code 1 (Custom Encryption Failed)
@@ -63,7 +69,27 @@ def Cstm(Input, Key, windowed):
     if not windowed:
         print("[**] Finished custom cipher, turning list into string...")
 
+    if windowed:
+        root = Tk()
+        root.title("Warning")
+        root.geometry('400x250+1000+300')
+        def closewin():
+            root.destroy()
+        def sepwin():
+            lab = Label(root)
+            lab['text'] = "Finished custom cipher, turning list into string\nbe prepared for delay"
+            lab.pack()
+            but = Button(root, text='Close this warning', command=closewin)
+            but.pack()
+        root.after(0, sepwin)
+            
+
     op = ''.join(InList)
+
+    try:
+        closewin()
+    except:
+        pass
 
     if not windowed:
         print("[**] beginning final encoding")

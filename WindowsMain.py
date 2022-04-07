@@ -4,76 +4,13 @@ import B64B64Rotcipher as bbr
 import tarfile
 import os
 import sys
+import shutil
+import tkPBar as tpb
 from threading import Thread
 from tqdm import tqdm
 from tkinter import *
 from tkinter.ttk import *
 import easygui
-
-class tkProgressbar():
-    global self
-    def __init__(self, total=int, Title=str, Orientation=HORIZONTAL, Determinate=False):
-        self.total = total
-        self.tdone = float(0)
-        self.nctdn = 0
-        self.value = 0
-        self.Title = Title
-        self.isDet = Determinate
-        self.Orint = Orientation
-        self.p2jmp = self.total/100
-        self.root = Tk()
-        self.root.title(self.Title)
-        self.root.geometry('400x250+1000+300')
-        if not self.isDet:
-            self.pb1 = Progressbar(self.root, orient=self.Orint, length=100, mode='indeterminate')
-        if self.isDet:
-            self.pb1 = Progressbar(self.root, orient=self.Orint, length=100, mode='determinate')
-        self.pb1.pack(expand=True)
-        self.DesLV = ''
-        self.DescL = Label(self.root)
-        self.DescL.pack()
-        def pUpdate():
-            try:
-                self.root.update_idletasks()
-                self.pb1['value'] = self.value
-                self.DescL['text'] = self.DesLV
-                self.root.update()
-                #print(self.nctdn, self.total)
-                if self.nctdn >= self.total:
-                    self.root.destroy()
-                try:
-                    self.root.after(10, pUpdate)
-                except:
-                    pass
-            except Exception as e:
-                #print(str(e)+"\n\nHappened in pUpdated()")
-                pass
-        pUpdate()
-        
-
-    def update(self, amount):
-        self.tdone += amount
-        self.nctdn += amount
-        while self.tdone >= self.p2jmp:
-            if self.tdone >= self.p2jmp*2:
-                self.tdone -= self.p2jmp*2
-                self.value += 2
-                continue
-            self.tdone -= self.p2jmp
-            self.value += 1
-        try:
-            self.root.update()
-        except:
-            pass
-
-    def description(self, Desc):
-        self.DesLV = Desc
-        try:
-            self.root.update()
-        except:
-            pass
-        
-        
 
 def compresstree(tar_file, members):
     os.mkdir(f"./{tar_file.replace('.tar.gz','')}")
@@ -100,7 +37,7 @@ def compress(tar_file, members):
     tar = tarfile.open(tar_file, mode="w:gz")
     # with progress bar
     # set the progress bar
-    progress = tkProgressbar(len(members), "Compressing", Determinate=True)
+    progress = tpb.tkProgressbar(len(members), "Compressing", Determinate=True)
     #Thread(target=progress.InitializeWindow, args=(), daemon=True).start()
     for member in members:
         progress.description(f"Compressing {member}")
@@ -121,11 +58,13 @@ def decompress(tar_file, path, members=None):
         members = tar.getmembers()
     # with progress bar
     # set the progress bar
-    progress = tqdm(members)
-    for member in progress:
+    progress = tpb.tkProgressbar(len(members), "Extracting", Determinate=True)
+    for member in members:
+        progress.description(f"Extracting {member}")
+        # extract the files
         tar.extract(member, path=path)
         # set the progress description of the progress bar
-        progress.set_description(f"Extracting {member.name}")
+        progress.update(1)
     # or use this
     # tar.extractall(members=members, path=path)
     # close the file
@@ -149,6 +88,7 @@ def efile(fpath, spath, key):
             compressed = True
         with open(fpath, 'rb') as file:
             fl = file.readlines()
+            file.close()
 
         fs = b''.join(fl)
 
@@ -158,36 +98,51 @@ def efile(fpath, spath, key):
                 spath = spath.replace(".bbr", '')
             with open(spath+".tar.gz.bbr", 'wb') as file:
                 file.write(bbr.btwc(fs, key, True))
+                file.close()
+            os.remove("CompressedTree.tar.gz")
+            shutil.rmtree("CompressedTree")
             return spath+".tar.gz.bbr"
         elif not compressed:
             if not spath.endswith(".bbr"):
                 spath = spath + ".bbr"
             with open(spath, 'wb') as file:
                 file.write(bbr.btwc(fs, key, True))
+                file.close()
             return spath
-    except KeyboardInterrupt:
-        print("User Interrupt")
-        print("Removing Temporary files")
-        try:
-            os.remove("CompressedTree.tar.gz")
-        except:
-            pass
-        try:
-            os.remove(spath+".tar.gz.bbr")
-        except:
-            pass
-        try:
-            os.remove(spath)
-        except:
-            pass
-        try:
-            shutil.rmtree("CompressedTree")
-        except:
-            pass
-
+    except Exception as e:
+        if e == KeyboardInterrupt:
+            print("User Interrupt")
+            print("Removing Temporary files")
+            try:
+                os.remove("CompressedTree.tar.gz")
+            except:
+                pass
+            try:
+                os.remove(spath+".tar.gz.bbr")
+            except:
+                pass
+            try:
+                os.remove(spath)
+            except:
+                pass
+            try:
+                shutil.rmtree("CompressedTree")
+            except:
+                pass
+        else:
+            print("Error in encryption of file")
 def dfile(fpath, key):
     try:
-        pass
+        with open(fpath, 'rb') as file:
+            fl = file.readlines()
+            file.close()
+        fs = b''.join(fl)
+        with open(fpath.replace(".bbr",''), 'wb') as file:
+            file.write(bbrd.decode(fs, key, True))
+            file.close()
+        decompress(fpath.replace('.bbr',''), f"{fpath.replace('.tar.gz.bbr','')}")
+        os.remove(f"{fpath.replace('.bbr','')}")
+        return f"Decompressed as {fpath.replace('.bbr','')}"
     except Exception as e:
         print(e)
         easygui.msgbox(f"Error Decode failed Check below for error details\n\n{e}")
@@ -209,7 +164,7 @@ def main():
             easygui.msgbox(decrypt(easygui.enterbox("Message to decrypt:"),easygui.enterbox("Passcode:")))
 
         if c == "Decrypt File":
-            dfile(easygui.fileopenbox(multiple=False),easygui.enterbox("Passcode:"))
+            easygui.msgbox(dfile(easygui.fileopenbox(multiple=False),easygui.enterbox("Passcode:")))
 
 if __name__ == '__main__':
     main()
