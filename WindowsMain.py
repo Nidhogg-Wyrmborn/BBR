@@ -144,6 +144,14 @@ def dfile(fpath, key):
         os.remove(f"{fpath.replace('.bbr','')}")
         return f"Decompressed as {fpath.replace('.bbr','')}"
     except Exception as e:
+        try:
+            os.remove(fpath.replace('.bbr',''))
+        except:
+            pass
+        try:
+            shutil.rmtree(fpath.replace('tar.gz.bbr',''))
+        except:
+            pass
         print(e)
         easygui.msgbox(f"Error Decode failed Check below for error details\n\n{e}")
 
