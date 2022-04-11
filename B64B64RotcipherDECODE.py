@@ -27,6 +27,8 @@ def decode(msg, key, windowed=False):
         msg[i] = b85decode(bytes(msg[i], "UTF-8")).decode()
         if windowed:
             pbar.update(1)
+            if pbar.cancel:
+                raise Exception("User Canceled")
         if not windowed:
             pbar.update()
 
@@ -55,6 +57,8 @@ def decode(msg, key, windowed=False):
             if windowed:
                 pbar2.description(f"{i}/{len(InList)}")
                 pbar2.update(1)
+                if pbar2.cancel:
+                    raise Exception("User Canceled")
 
     except Exception as e:
         print(e)

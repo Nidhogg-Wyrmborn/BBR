@@ -1,4 +1,4 @@
-# Change the built-in hash funciton for hashlib's md5 or sha function
+# Change the built-in hash function for hashlib's md5 or sha function
 from base64 import *
 import easygui
 import hashlib
@@ -53,18 +53,20 @@ def Cstm(Input, Key, windowed):
             if windowed:
                 pbar.description(f"{i}/{total}")
                 pbar.update(1)
+                if pbar.cancel:
+                    raise Exception("User Canceled")
 
     except Exception as e:
         # if there is an exception print it and then print "exit code 1 (Custom Encryption Failed)
         print(e)
-        print(f"\nInList = {InList}\nKyList = {KyList}")
-        print()
-        print(f"Input = {Input}\nKey = {Key}")
-        print()
-        print(f"was up to {i}, counter was up to {counter}")
-        print("\nexit code 1 (Custom Encryption Failed")
+        #print(f"\nInList = {InList}\nKyList = {KyList}")
+        #print()
+        #print(f"Input = {Input}\nKey = {Key}")
+        #print()
+        #print(f"was up to {i}, counter was up to {counter}")
+        #print("\nexit code 1 (Custom Encryption Failed")
         # then return a None-type object
-        return None
+        return e
 
     if not windowed:
         print("[**] Finished custom cipher, turning list into string...")

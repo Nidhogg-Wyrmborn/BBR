@@ -26,7 +26,7 @@ def compresstree(tar_file, members):
     for i in range(len(members)):
         members[i] = f"./{tar_file.replace('.tar.gz','')}/{members[i].split('/')[len(members[i].split('/'))-1]}"
     #print(f"{tar_file}--{members}")
-    compress(tar_file,members)
+    return compress(tar_file,members)
 
 
 def compress(tar_file, members):
@@ -45,8 +45,11 @@ def compress(tar_file, members):
         tar.add(member)
         # set the progress description of the progress bar to the file being compressed
         progress.update(1)
+        if progress.cancel:
+            return False
     # close the file
     tar.close()
+    return True
 
 def decompress(tar_file, path, members=None):
     """
@@ -65,10 +68,13 @@ def decompress(tar_file, path, members=None):
         tar.extract(member, path=path)
         # set the progress description of the progress bar
         progress.update(1)
+        if progress.cancel:
+            return False
     # or use this
     # tar.extractall(members=members, path=path)
     # close the file
     tar.close()
+    return True
 
 def encrypt(msg, key):
     return bbr.btwc(msg, key)
@@ -83,7 +89,8 @@ def efile(fpath, spath, key):
             fpath = fpath[0]
             compressed = False
         elif len(fpath)>1:
-            compresstree("CompressedTree.tar.gz", fpath)
+            if not compresstree("CompressedTree.tar.gz", fpath):
+                raise Exception("User Canceled")
             fpath = "CompressedTree.tar.gz"
             compressed = True
         with open(fpath, 'rb') as file:
@@ -106,7 +113,11 @@ def efile(fpath, spath, key):
             if not spath.endswith(".bbr"):
                 spath = spath + ".bbr"
             with open(spath, 'wb') as file:
-                file.write(bbr.btwc(fs, key, True))
+                b = bbr.btwc(fs, key, True)
+                #print(b,type(b))
+                if b==Exception:
+                    raise b
+                file.write(b)
                 file.close()
             return spath
     except Exception as e:
@@ -130,7 +141,8 @@ def efile(fpath, spath, key):
             except:
                 pass
         else:
-            print("Error in encryption of file")
+            print(e)
+            return e
 def dfile(fpath, key):
     try:
         with open(fpath, 'rb') as file:

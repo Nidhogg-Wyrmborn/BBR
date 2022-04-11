@@ -4,6 +4,10 @@ from tkinter.ttk import *
 class tkProgressbar():
     global self
     def __init__(self, total=int, Title=str, Orientation=HORIZONTAL, Determinate=False):
+        def cancel():
+            self.cancel = True
+            self.root.destroy()
+        self.cancel = False
         self.total = total
         self.tdone = float(0)
         self.nctdn = 0
@@ -23,6 +27,8 @@ class tkProgressbar():
         self.DesLV = ''
         self.DescL = Label(self.root)
         self.DescL.pack()
+        self.cance = Button(self.root,command=cancel,text="Cancel")
+        self.cance.pack()
         def pUpdate():
             try:
                 self.root.update_idletasks()
