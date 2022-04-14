@@ -104,7 +104,11 @@ def efile(fpath, spath, key):
             if spath.endswith('.bbr'):
                 spath = spath.replace(".bbr", '')
             with open(spath+".tar.gz.bbr", 'wb') as file:
-                file.write(bbr.btwc(fs, key, True))
+                b = bbr.btwc(fs, key, True)
+                print(b,type(b))
+                if type(b)==Exception:
+                    raise b
+                file.write(b)
                 file.close()
             os.remove("CompressedTree.tar.gz")
             shutil.rmtree("CompressedTree")
@@ -114,35 +118,33 @@ def efile(fpath, spath, key):
                 spath = spath + ".bbr"
             with open(spath, 'wb') as file:
                 b = bbr.btwc(fs, key, True)
-                #print(b,type(b))
-                if b==Exception:
+                print(b,type(b))
+                if type(b)==Exception:
                     raise b
                 file.write(b)
                 file.close()
             return spath
     except Exception as e:
-        if e == KeyboardInterrupt:
-            print("User Interrupt")
-            print("Removing Temporary files")
-            try:
-                os.remove("CompressedTree.tar.gz")
-            except:
-                pass
-            try:
-                os.remove(spath+".tar.gz.bbr")
-            except:
-                pass
-            try:
-                os.remove(spath)
-            except:
-                pass
-            try:
-                shutil.rmtree("CompressedTree")
-            except:
-                pass
-        else:
-            print(e)
-            return e
+        print("User Interrupt")
+        print("Removing Temporary files")
+        try:
+            os.remove("CompressedTree.tar.gz")
+        except:
+            pass
+        try:
+            os.remove(spath+".tar.gz.bbr")
+        except:
+            pass
+        try:
+            os.remove(spath)
+        except:
+            pass
+        try:
+            shutil.rmtree("CompressedTree")
+        except:
+            pass
+        print(e)
+        return e
 def dfile(fpath, key):
     try:
         with open(fpath, 'rb') as file:
