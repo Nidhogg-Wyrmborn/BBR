@@ -89,9 +89,9 @@ def efile(fpath, spath, key):
             fpath = fpath[0]
             compressed = False
         elif len(fpath)>1:
-            if not compresstree("CompressedTree.tar.gz", fpath):
+            if not compresstree("Files.tar.gz", fpath):
                 raise Exception("User Canceled")
-            fpath = "CompressedTree.tar.gz"
+            fpath = "Files.tar.gz"
             compressed = True
         with open(fpath, 'rb') as file:
             fl = file.readlines()
@@ -110,8 +110,8 @@ def efile(fpath, spath, key):
                     raise b
                 file.write(b)
                 file.close()
-            os.remove("CompressedTree.tar.gz")
-            shutil.rmtree("CompressedTree")
+            os.remove("Files.tar.gz")
+            shutil.rmtree("Files")
             return spath+".tar.gz.bbr"
         elif not compressed:
             if not spath.endswith(".bbr"):
@@ -128,7 +128,7 @@ def efile(fpath, spath, key):
         print("User Interrupt")
         print("Removing Temporary files")
         try:
-            os.remove("CompressedTree.tar.gz")
+            os.remove("Files.tar.gz")
         except:
             pass
         try:
@@ -140,7 +140,7 @@ def efile(fpath, spath, key):
         except:
             pass
         try:
-            shutil.rmtree("CompressedTree")
+            shutil.rmtree("Files")
         except:
             pass
         print(e)
