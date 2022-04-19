@@ -7,7 +7,7 @@ from tkinter import *
 import tkPBar as tpb
 from tqdm import tqdm
     
-def decode(msg, key, windowed=False):
+def decode(msg, key, windowed=0):
     if type(msg)!=type(b''):
         msg = bytes(msg, "UTF-8")
 
@@ -17,19 +17,19 @@ def decode(msg, key, windowed=False):
     # take input and key decode using my custom cipher then decode twice using b64
     msg = b64decode(msg).decode()
     msg = msg.split("39bgen")
-    if not windowed:
+    if windowed==0:
         pbar = tqdm(total=len(msg), position=0, leave=True)
-    if windowed:
+    if windowed==1:
         pbar = tpb.tkProgressbar(total=len(msg),Title="Decoding",Determinate=True)
     for i in range(len(msg)):
-        if windowed:
+        if windowed==1:
             pbar.description(f"{i}/{len(msg)}")
         msg[i] = b85decode(bytes(msg[i], "UTF-8")).decode()
-        if windowed:
+        if windowed==1:
             pbar.update(1)
             if pbar.cancel:
                 raise Exception("User Canceled")
-        if not windowed:
+        if windowed==0:
             pbar.update()
 
     key = b64encode(bytes(str(hashlib.sha256(key.encode()).hexdigest()), "UTF-8")).decode()
@@ -39,9 +39,9 @@ def decode(msg, key, windowed=False):
 
     counter = -1
 
-    if not windowed:
+    if windowed==0:
         pbar2 = tqdm(total=len(InList), position=0, leave=True)
-    if windowed:
+    if windowed==1:
         pbar2 = tpb.tkProgressbar(total=len(InList),Title="Decoding",Determinate=True)
     
     try:
@@ -52,9 +52,9 @@ def decode(msg, key, windowed=False):
             #print(InList[i])   
             InList[i] = chr(int(int(InList[i])/ord(KyList[counter])))
             #print(InList[i])
-            if not windowed:
+            if windowed==0:
                 pbar2.update()
-            if windowed:
+            if windowed==1:
                 pbar2.description(f"{i}/{len(InList)}")
                 pbar2.update(1)
                 if pbar2.cancel:
@@ -66,7 +66,7 @@ def decode(msg, key, windowed=False):
         
     #print(InList)
 
-    if windowed:
+    if windowed==1:
         root = Tk()
         root.title("Warning")
         root.geometry('400x250+1000+300')

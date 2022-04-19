@@ -16,16 +16,16 @@ def Cstm(Input, Key, windowed):
     InList = list(Input)
     KyList = list(Key)
 
-    if not windowed:
+    if windowed==0:
         print("[**] beginning custom cipher")
 
     counter = -1
     #cycle = 0
     #cyclewhole = 0
-    if not windowed:
+    if windowed==0:
         total = len(InList)
         pbar = tqdm(total=total, position=0, leave=True)
-    if windowed:
+    if windowed==1:
         total = len(InList)
         pbar = tpb.tkProgressbar(total,"Beginning Custom Cipher",Determinate=True)
     # then try to cycle through the inputt list (InList) and apply the multiplication to it if the key reaches the end of it's limit then cycle back to beginning (VERY INSECURE)
@@ -48,9 +48,9 @@ def Cstm(Input, Key, windowed):
 
             if i > 0:
                 InList[i] = "39bgen" + InList[i]
-            if not windowed:
+            if windowed==0:
                 pbar.update()
-            if windowed:
+            if windowed==1:
                 pbar.description(f"{i}/{total}")
                 pbar.update(1)
                 if pbar.cancel:
@@ -68,10 +68,10 @@ def Cstm(Input, Key, windowed):
         # then return a None-type object
         return e
 
-    if not windowed:
+    if windowed==0:
         print("[**] Finished custom cipher, turning list into string...")
 
-    if windowed:
+    if windowed==1:
         root = Tk()
         root.title("Warning")
         root.geometry('400x250+1000+300')
@@ -93,18 +93,18 @@ def Cstm(Input, Key, windowed):
     except:
         pass
 
-    if not windowed:
+    if windowed==0:
         print("[**] beginning final encoding")
 
     op = b64encode(op.encode())
 
     # convert bytes-like object to pure string no b'asofoiasjfoawejf' stuff
-    if not windowed:
+    if windowed==0:
         print("[**] Finished")
     return op
 
 
-def btwc(Input, key, windowed=False):
+def btwc(Input, key, windowed=0):
     if type(Input)!=type(b''):
         # convert input to bytes-like object
         Input = Input.encode()
@@ -118,7 +118,7 @@ def btwc(Input, key, windowed=False):
 
     # convert the key to hash then base64
     Key = b64encode(bytes(str(hashlib.sha256(key.encode()).hexdigest()), "UTF-8"))
-    if not windowed:
+    if windowed==0:
         print("[**] Step 1: Complete")
     # return the completed encryption using my custom encryption method
     return Cstm(GfCstm, Key, windowed)

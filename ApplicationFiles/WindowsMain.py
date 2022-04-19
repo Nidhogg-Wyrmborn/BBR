@@ -177,7 +177,9 @@ def main():
             running = False
 
         if c == "Encrypt":
-            easygui.msgbox(encrypt(easygui.enterbox("Message to encrypt:"),easygui.enterbox("Passcode:")))
+            a = encrypt(easygui.enterbox("Message to encrypt:"),easygui.enterbox("Passcode:"))
+            print(type(a))
+            easygui.msgbox(a)
 
         if c == "Encrypt File":
             easygui.msgbox(efile(easygui.fileopenbox(multiple=True), easygui.filesavebox(default='Encrypted.bbr'), easygui.enterbox("Passcode:")))
