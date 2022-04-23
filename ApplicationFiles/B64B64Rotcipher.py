@@ -104,7 +104,7 @@ def Cstm(Input, Key, windowed):
     return op
 
 
-def btwc(Input, key, windowed=0):
+def btwc(Input, key=None, windowed=0):
     if type(Input)!=type(b''):
         # convert input to bytes-like object
         Input = Input.encode()

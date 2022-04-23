@@ -7,9 +7,9 @@ from tkinter import *
 import tkPBar as tpb
 from tqdm import tqdm
     
-def decode(msg, key, windowed=0):
+def decode(msg, key=None, windowed=0):
     if type(msg)!=type(b''):
-        msg = bytes(msg, "UTF-8")
+        msg = msg.encode()
 
     if key == None:
         key = ''
@@ -81,6 +81,7 @@ def decode(msg, key, windowed=0):
         root.after(0, sepwin)
     
     tmp = ''.join(InList)
+    #print(tmp+"\n\n"+str(type(tmp))) #DEBUG
 
     try:
         closewin()

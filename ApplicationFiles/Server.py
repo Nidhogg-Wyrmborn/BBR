@@ -1,11 +1,17 @@
 # First Iteration of Chat will be terminal then windowed
 import socket
+import struct
+from datetime import datetime
+import B64B64Rotcipher as bbr
+import B64B64RotcipherDECODE as bbrd
 from threading import Thread
 
 # Server's IP Address
 SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 5002 # Port we want to use
 separator_token = "<SEP>"
+
+roomkey = str(input("roomkey\n\n- "))
 
 # initialize list/set of all connected client's sockets
 client_sockets = set()
@@ -19,6 +25,15 @@ s.bind((SERVER_HOST, SERVER_PORT))
 s.listen(5)
 print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
 
+def recvall(sock, n):
+	data = bytearray()
+	while len(data) < n:
+		packet = sock.recv(n-len(data))
+		if not packet:
+			return None
+		data.extend(packet)
+	return data
+
 def listen_for_client(cs):
 	"""
 	This function keep listening for a message from `cs` socket
@@ -27,29 +42,43 @@ def listen_for_client(cs):
 	while True:
 		try:
 			# keep listening for a message from `cs` socket
-			msg = cs.recv(1024).decode()
+			raw_msglen = recvall(cs, 4)
+			if not raw_msglen:
+				raise Exception("NO DATA")
+			msglen = struct.unpack('>I', raw_msglen)[0]
+			msg = recvall(cs, msglen).decode()
 		except Exception as e:
 			# client no longer connected
 			# remove it from the set
 			print(f"[!] Error: Client No Longer Connected")
-			with open("Log.log", 'w') as file:
-				file.append(e)
+			with open("Log.log", 'a') as file:
+				file.write(str("["+datetime.now().strftime('%Y-%m-%d %H:%M:%S')+"] | "+str(e)+"\n"))
 				file.close()
 			client_sockets.remove(cs)
 		else:
-			msg = bbrd.decode(msg, roomkey, 2)
+			#print(msg) #DEBUG
+			#print("\n"+str(type(msg))) #DEBUG
+			msg = bbrd.decode(msg, roomkey, 2).decode()
 			# if we received a message, replace the <SEP>
 			# token with ": " for nice printing
-			msg = msg.replace(separator_token, ": ")
+			msg = bbr.btwc(msg.replace(separator_token, ": "),roomkey,2)
 		# iterate over all connected sockets
 		for client_socket in client_sockets:
 			# and send the message
-			client_socket.send(msg.encode())
+			msg = struct.pack('>I', len(msg)) + msg
+			client_socket.sendall(msg)
 
 while True:
 	# we keep listening for new connections all the time
 	client_socket, client_address = s.accept()
 	print(f"[+] {client_address} connected.")
+	rk = bbrd.decode(client_socket.recv(1024).decode(), None, 2).decode()
+	if rk != roomkey:
+		client_socket.send(bbr.btwc("WrongKey".encode(), None, 2))
+		client_socket.close()
+		continue
+	if rk == roomkey:
+		client_socket.send(bbr.btwc("Welcome".encode(), None, 2))
 	# add the new connected client to connected sockets
 	client_sockets.add(client_socket)
 	# start a new thread that listens for each client's messages
