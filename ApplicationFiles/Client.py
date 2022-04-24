@@ -45,6 +45,8 @@ def logger():
 				file.close()
 			print(logs)
 			quit()
+		if events["Quit"]:
+			quit()
 
 def Server():
 	global events
@@ -57,6 +59,9 @@ def Server():
 			# if the server is not on this machine, 
 			# put the private (network) IP address (e.g 192.168.1.2)
 			SERVER_HOST = easygui.enterbox("IP address of server")
+			if SERVER_HOST == None:
+				events["Quit"] == True
+				quit()
 			SERVER_PORT = 5002 # server's port
 			separator_token = "<SEP>" # we will use this to separate the client name & message
 
@@ -86,6 +91,10 @@ def Server():
 
 			events["connected"] = True
 
+			def recvmsg(sock, msglen, key):
+				message = bbrd.decode(recvall(sock,msglen).decode(),key,2)
+				event["recv"] = message
+
 			def listen_for_messages():
 				global events
 				while True:
@@ -93,8 +102,7 @@ def Server():
 					if not raw_msglen:
 						raise Exception("NO DATA")
 					msglen = struct.unpack('>I', raw_msglen)[0]
-					message = bbrd.decode(recvall(s, msglen).decode(), roomkey, 2)
-					events["recv"] = message
+					Thread(target=recvmsg,args=(s,msglen,roomkey), daemon=True).start()
 
 			# make a thread that listens for messages to this client & print them
 			t = Thread(target=listen_for_messages)
@@ -102,6 +110,9 @@ def Server():
 			t.daemon = True
 			# start the thread
 			t.start()
+
+			def sendalldata(to_send, key):
+				s.sendall(bbr.btwc(to_send, key, 2))
 
 			while True:
 				if events["disconnect"] != None:
@@ -118,13 +129,14 @@ def Server():
 					to_send = f"[{date_now}] {name}{separator_token}{to_send}"
 					# finally, send the message
 					to_send = struct.pack('>I', len(to_send)) + to_send.encode()
-					s.sendall(bbr.btwc(to_send, None, 2))
+					Thread(target=sendalldata, args=(to_send,roomkey,), daemon=True).start()
 
 			# close the socket
 			s.close()
 
 class GUI():
 	def __init__(self):
+		global events
 		self.txtval = []
 		self.nochngtxtval = []
 		self.root = tk.Tk()
@@ -134,14 +146,16 @@ class GUI():
 		self.labl.pack()
 		count = 1
 		while events["connected"] == False:
-			if events["FError"] == True:
+			if events["Quit"] == True:
+				quit()
+			if events["FError"] != None:
 				quit()
 			self.labl["text"] = "Loading"+"."*count
 			count += 1
 			if count > 3:
 				count = 1
 		self.labl["text"] = ""
-		self.inputtxt = tk.Text(self.root,height=1,width=40,undo=True)
+		self.inputtxt = tk.Text(self.root,height=1,width=40)
 		self.inputtxt.bind("<Return>", self.sendinput)
 		self.sendButton = tk.Button(self.root, text="Send")
 		self.sendButton.bind("<Button-1>", self.sendinput)
@@ -149,6 +163,7 @@ class GUI():
 		self.inputtxt.pack(padx=5,pady=5,side=tk.BOTTOM)
 
 		def on_closing():
+			global events
 			self.root.destroy()
 			events["Quit"] = True
 			quit()
@@ -204,3 +219,5 @@ serverthread = Thread(target=Server,daemon=True)
 serverthread.start()
 
 GUI()
+while events["FError"] == None or not events["Quit"]:
+	pass
