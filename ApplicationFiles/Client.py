@@ -156,9 +156,9 @@ class GUI():
 				count = 1
 		self.labl["text"] = ""
 		self.inputtxt = tk.Text(self.root,height=1,width=40)
-		self.inputtxt.bind("<Return>", self.sendinput)
-		self.sendButton = tk.Button(self.root, text="Send")
-		self.sendButton.bind("<Button-1>", self.sendinput)
+		#self.inputtxt.bind("<Return>", self.sendinput)
+		self.sendButton = tk.Button(self.root, text="Send", command=self.sendinput)
+		#self.sendButton.bind("<Button-1>", self.sendinput)
 		self.sendButton.pack(padx=5,pady=5,side=tk.BOTTOM)
 		self.inputtxt.pack(padx=5,pady=5,side=tk.BOTTOM)
 
@@ -206,7 +206,7 @@ class GUI():
 					events["Error"] = str(e)
 					pass
 
-	def sendinput(self, event):
+	def sendinput(self):#, event):
 		global events
 		inp = self.inputtxt.get("1.0", "end").strip()
 		events["send"] = inp
