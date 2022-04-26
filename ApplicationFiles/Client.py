@@ -38,6 +38,7 @@ def logger():
 				with open("Errors.log", 'w') as file:
 					file.write(events["Error"]+"\n")
 					file.close()
+				events["Error"] = None
 		if events["FError"] != None:
 			print(f"Fatal Error\n\n{events['FError']}\n\nfile logs:\n")
 			with open("Errors.log", 'r') as file:
@@ -137,7 +138,7 @@ def Server():
 class GUI():
 	def __init__(self):
 		global events
-		self.txtval = []
+		#self.txtval = []
 		self.nochngtxtval = []
 		self.root = tk.Tk()
 		self.root.title("Chatroom")
@@ -174,6 +175,9 @@ class GUI():
 		self.root.protocol("WM_DELETE_WINDOW", on_closing)
 		self.root.mainloop()
 
+	def updatehandle(self, changeto):
+		pass
+
 	def updatechat(self):
 		global events
 		while True:
@@ -192,16 +196,18 @@ class GUI():
 						current = ''
 						for i in currentl:
 							current = current + i
-					self.labl['text'] = ''
-					self.txtval = []
+					#self.labl['text'] = ''
+					txtval = []
 					self.nochngtxtval.append(new+"\n")
 					for i in range(len(nochngtxtval)):
-						self.txtval.append(nochngtxtval[i])
-					self.txtval.pop(len(self.txtval)-1)
-					self.txtval.append(new+"\n")
-					self.txtval[len(self.txtval)-1] = self.txtval[len(self.txtval)-1][:-1]
-					for i in range(len(self.txtval)):
-						self.labl['text'] = self.labl['text']+self.txtval[i]
+						txtval.append(nochngtxtval[i])
+					txtval.pop(len(txtval)-1)
+					txtval.append(new+"\n")
+					txtval[len(txtval)-1] = txtval[len(txtval)-1][:-1]
+					changeto = ''
+					for i in range(len(txtval)):
+						changeto = changeto+txtval[i]
+					self.updatehandle(changeto)
 				except Exception as e:
 					events["Error"] = str(e)
 					pass
@@ -219,5 +225,3 @@ serverthread = Thread(target=Server,daemon=True)
 serverthread.start()
 
 GUI()
-while events["FError"] == None or not events["Quit"]:
-	pass
