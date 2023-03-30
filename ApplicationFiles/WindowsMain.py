@@ -11,6 +11,7 @@ from tqdm import tqdm
 from tkinter import *
 from tkinter.ttk import *
 import easygui
+import fingerprint
 
 def compresstree(tar_file, members):
     os.mkdir(f"./{tar_file.replace('.tar.gz','')}")
@@ -82,9 +83,14 @@ def encrypt(msg, key):
 def decrypt(msg, key):
     return bbrd.decode(msg, key)
 
-def efile(fpath, spath, key):
+def efile(fpath, spath, key, corrupt=False):
+    mode = 'rb'
+    modew= 'wb'
+    if corrupt:
+        mode = 'r'
+        modew= 'w'
     try:
-        #print(fpath)
+        print(fpath)
         if len(fpath)==1:
             fpath = fpath[0]
             compressed = False
@@ -93,7 +99,7 @@ def efile(fpath, spath, key):
                 raise Exception("User Canceled")
             fpath = "Files.tar.gz"
             compressed = True
-        with open(fpath, 'rb') as file:
+        with open(fpath, mode) as file:
             fl = file.readlines()
             file.close()
 
@@ -101,9 +107,11 @@ def efile(fpath, spath, key):
 
         if compressed:
             #print(spath)
+            if spath.endswith('.tar.gz.bbr'):
+                spath = spath.replace(".tar.gz.bbr", '')
             if spath.endswith('.bbr'):
                 spath = spath.replace(".bbr", '')
-            with open(spath+".tar.gz.bbr", 'wb') as file:
+            with open(spath+".tar.gz.bbr", modew) as file:
                 b = bbr.btwc(fs, key, True)
                 print(b,type(b))
                 if type(b)==Exception:
@@ -116,7 +124,7 @@ def efile(fpath, spath, key):
         elif not compressed:
             if not spath.endswith(".bbr"):
                 spath = spath + ".bbr"
-            with open(spath, 'wb') as file:
+            with open(spath, modew) as file:
                 b = bbr.btwc(fs, key, True)
                 print(b,type(b))
                 if type(b)==Exception:
@@ -145,18 +153,30 @@ def efile(fpath, spath, key):
             pass
         print(e)
         return e
-def dfile(fpath, key):
+def dfile(fpath, key, corrupt=False):
+    mode = 'rb'
+    modew = 'wb'
+    if corrupt:
+        mode = 'r'
+        modew = 'w'
     try:
-        with open(fpath, 'rb') as file:
+        if fpath.endswith(".tar.gz.bbr"):
+            compressed = True
+        elif not fpath.endswith(".tar.gz.bbr"):
+            compressed = False
+        with open(fpath, mode) as file:
             fl = file.readlines()
             file.close()
         fs = b''.join(fl)
-        with open(fpath.replace(".bbr",''), 'wb') as file:
+        with open(fpath.replace(".bbr",''), modew) as file:
             file.write(bbrd.decode(fs, key, True))
             file.close()
-        decompress(fpath.replace('.bbr',''), f"{fpath.replace('.tar.gz.bbr','')}")
-        os.remove(f"{fpath.replace('.bbr','')}")
-        return f"Decompressed as {fpath.replace('.bbr','')}"
+        if compressed:
+            decompress(fpath.replace('.bbr',''), f"{fpath.replace('.tar.gz.bbr','')}")
+            os.remove(f"{fpath.replace('.bbr','')}")
+            return f"Decompressed as {fpath.replace('.bbr','')}"
+        elif not compressed:
+            return f"Decrypted as {fpath.replace('.bbr','')}"
     except Exception as e:
         try:
             os.remove(fpath.replace('.bbr',''))
@@ -172,7 +192,7 @@ def dfile(fpath, key):
 def main():
     running = True
     while running:
-        c = easygui.buttonbox("Encrypt Or Decrypt?", choices=['Encrypt','Encrypt File','Decrypt','Decrypt File','Quit'])
+        c = easygui.buttonbox("Encrypt Or Decrypt?", choices=['Encrypt','Encrypt File','Decrypt','Decrypt File','fingerprint encrypt', 'fingerprint decrypt', 'Quit'])
         if c == "Quit":
             running = False
 
@@ -189,6 +209,45 @@ def main():
 
         if c == "Decrypt File":
             easygui.msgbox(dfile(easygui.fileopenbox(multiple=False),easygui.enterbox("Passcode:")))
+
+        if c == 'fingerprint encrypt':
+            myfp = fingerprint.FingerPrint()
+            try:
+                myfp.open()
+                print("Please touch the fingerprint sensor")
+                try:
+                    a = myfp.identify()
+                except:
+                    print("Error, Access denied or incorrect scan")
+                    continue
+                for i in range(len(a)):
+                    a[i] = ''.join(str(a[i]))
+                a = ''.join(a)
+                file = easygui.fileopenbox(multiple=True)
+                if len(file) >= 2:
+                    save = file[0]+"tar.gz.bbr"
+                elif len(file) < 2:
+                    save = file[0]+".bbr"
+                easygui.msgbox(efile(file, save, a))
+            finally:
+                myfp.close()
+        if c == 'fingerprint decrypt':
+            myfp = fingerprint.FingerPrint()
+            try:
+                myfp.open()
+                print("Please touch the fingerprint sensor")
+                try:
+                    a = myfp.identify()
+                except:
+                    print("Error, Access denied or incorrect scan")
+                    continue
+                for i in range(len(a)):
+                    a[i] = ''.join(str(a[i]))
+                a = ''.join(a)
+                file = easygui.fileopenbox(multiple=False)
+                easygui.msgbox(dfile(file,a))
+            finally:
+                myfp.close()
 
 if __name__ == '__main__':
     main()
